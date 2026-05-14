@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Denver → Greenville · Road Trip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pine:      #1B4332;
+  --pine-mid:  #2D6A4F;
+  --pine-lite: #40916C;
+  --sandstone: #C9A96E;
+  --sand-dark: #A8813E;
+  --rust:      #B5451B;
+  --snow:      #FFFFFF;
+  --ink:       #111827;
+  --mist:      #F4EFE8;
+  --mist-dark: #EDE7DC;
+  --stone:     #5C5347;
+  --border:    #C8BFB0;
+  --shadow-sm: 0 1px 4px rgba(27,67,50,0.10);
+  --shadow-md: 0 4px 16px rgba(27,67,50,0.14);
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--mist);
+  color: var(--ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* ── HERO ── */
+.hero {
+  background: var(--pine);
+  color: var(--snow);
+  padding: 2.75rem 1.25rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0; height: 56px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 56'%3E%3Cpath d='M0,56 L0,28 Q180,0 360,20 Q540,40 720,12 Q900,-8 1080,18 Q1260,44 1440,24 L1440,56 Z' fill='%23F4EFE8'/%3E%3C/svg%3E") no-repeat bottom / cover;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  bottom: 50px; left: 0; right: 0; height: 110px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 110'%3E%3Cpolygon points='0,110 120,30 220,70 330,8 440,55 550,4 660,45 800,18 800,110' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E") no-repeat bottom / cover;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: var(--sandstone); color: var(--pine);
+  font-weight: 700; font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 0.3rem 0.85rem; border-radius: 3px; margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 8vw, 3.5rem); font-weight: 900;
+  line-height: 1.05; margin-bottom: 0.6rem; letter-spacing: -0.01em;
+}
+.hero-sub { font-size: 1rem; color: rgba(255,255,255,0.82); font-weight: 400; margin-bottom: 1.25rem; }
+
+/* Hero info — FIXED: stacked rows, full contrast, no overflow */
+.hero-info { display: flex; flex-direction: column; gap: 0.5rem; }
+.hero-info-row {
+  display: flex; align-items: center; gap: 0.6rem;
+  background: rgba(255,255,255,0.16);
+  border: 1.5px solid rgba(255,255,255,0.38);
+  border-radius: 7px; padding: 0.55rem 0.9rem;
+  width: 100%;
+}
+.hi-label { font-size: 0.75rem; font-weight: 500; color: rgba(255,255,255,0.7); white-space: nowrap; }
+.hi-value { font-size: 0.9rem; font-weight: 700; color: #FFFFFF; }
+@media (min-width: 520px) {
+  .hero-info { flex-direction: row; flex-wrap: wrap; }
+  .hero-info-row { width: auto; flex: 1 1 auto; }
+}
+
+/* ── NAV ── */
+.nav-wrap { position: sticky; top: 0; z-index: 100; background: var(--snow); border-bottom: 2px solid var(--border); box-shadow: var(--shadow-md); }
+.nav-pills { display: flex; gap: 0.4rem; padding: 0.7rem 1rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.nav-pills::-webkit-scrollbar { display: none; }
+.pill {
+  flex-shrink: 0; padding: 0.42rem 1rem; border-radius: 99px;
+  border: 2px solid var(--pine); background: transparent; color: var(--pine);
+  font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.82rem;
+  cursor: pointer; transition: background 0.18s, color 0.18s, transform 0.1s;
+  text-decoration: none; white-space: nowrap;
+}
+.pill:active { transform: scale(0.95); }
+.pill.active, .pill:hover { background: var(--pine); color: var(--snow); }
+
+/* Trip progress ticker */
+.trip-ticker {
+  background: var(--pine); padding: 0.32rem 1rem;
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.ticker-track { flex: 1; height: 5px; background: rgba(255,255,255,0.18); border-radius: 3px; overflow: hidden; }
+.ticker-fill { height: 100%; background: var(--sandstone); border-radius: 3px; width: 0; transition: width 0.4s; }
+.ticker-label { font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.6); letter-spacing: 0.08em; white-space: nowrap; }
+.ticker-pct { font-size: 0.78rem; font-weight: 700; color: var(--sandstone); white-space: nowrap; }
+
+/* ── CONTAINER ── */
+.container { max-width: 700px; margin: 0 auto; padding: 1.5rem 1rem 5rem; }
+@media (min-width: 640px) { .container { padding: 2rem 1.5rem 5rem; } }
+
+/* ── SECTION HEADERS ── */
+.section-header { display: flex; align-items: center; gap: 0.7rem; margin: 2.25rem 0 1rem; }
+.section-icon { width: 38px; height: 38px; background: var(--pine); border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.section-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--pine); }
+
+/* ── STATS ── */
+.stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.65rem; margin-bottom: 1.5rem; }
+@media (min-width: 480px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+.stat-card { background: var(--snow); border-radius: var(--r-md); padding: 1rem 0.85rem; border: 2px solid var(--border); text-align: center; transition: transform 0.15s, box-shadow 0.15s; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.stat-value { font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 700; color: var(--pine); line-height: 1; margin-bottom: 0.25rem; }
+.stat-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone); }
+.stat-card.hero-stat { background: var(--pine); border-color: var(--pine); grid-column: 1 / -1; }
+.stat-card.hero-stat .stat-value { color: var(--sandstone); font-size: 2.25rem; }
+.stat-card.hero-stat .stat-label { color: rgba(255,255,255,0.65); }
+
+/* ── ROUTE TIMELINE ── */
+.route-timeline { background: var(--snow); border: 2px solid var(--border); border-radius: var(--r-lg); padding: 1.25rem 1.1rem; margin-bottom: 1rem; }
+.rt-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--stone); margin-bottom: 1rem; }
+.rt-row { display: flex; align-items: stretch; }
+.rt-spine { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+.rt-dot { width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid var(--pine); background: var(--snow); flex-shrink: 0; z-index: 1; }
+.rt-dot.filled { background: var(--pine); }
+.rt-dot.camp { background: var(--sandstone); border-color: var(--sand-dark); }
+.rt-dot.special { background: var(--rust); border-color: #8B3010; }
+.rt-dot.home { background: var(--pine-lite); border-color: var(--pine); }
+.rt-line { width: 2px; flex: 1; min-height: 18px; background: repeating-linear-gradient(to bottom, var(--border) 0, var(--border) 4px, transparent 4px, transparent 8px); }
+.rt-content { flex: 1; padding: 0 0 1rem 0.85rem; }
+.rt-city { font-weight: 700; font-size: 0.95rem; color: var(--ink); line-height: 1.2; }
+.rt-detail { font-size: 0.78rem; color: var(--stone); margin-top: 0.15rem; line-height: 1.4; }
+.rt-tag { display: inline-block; margin-top: 0.3rem; background: var(--mist-dark); border-radius: 4px; padding: 0.15rem 0.55rem; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--stone); }
+.rt-tag.camp { background: #CCE9D9; color: var(--pine); }
+.rt-tag.music { background: #FAE5C8; color: #7A3B10; }
+.rt-tag.home-tag { background: #C9E4F0; color: #1A4F6E; }
+
+/* ── DAY CARDS ── */
+.day-card { background: var(--snow); border-radius: var(--r-lg); border: 2px solid var(--border); margin-bottom: 0.85rem; overflow: hidden; transition: box-shadow 0.2s, border-color 0.2s; }
+.day-card.open { border-color: var(--pine-mid); box-shadow: var(--shadow-md); }
+.day-header { display: flex; align-items: center; padding: 1rem 1.1rem; cursor: pointer; gap: 0.9rem; user-select: none; -webkit-tap-highlight-color: transparent; position: relative; overflow: hidden; }
+.day-header:active::after { content: ''; position: absolute; inset: 0; background: rgba(27,67,50,0.05); }
+.day-badge { width: 52px; height: 52px; border-radius: var(--r-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+.day-badge .day-word { font-size: 0.55rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.7; }
+.day-badge .day-num { font-family: 'Playfair Display', serif; font-size: 1.55rem; font-weight: 900; line-height: 1; }
+.day-1 .day-badge { background: #CCE9D9; color: var(--pine); }
+.day-2 .day-badge { background: #FAE5C8; color: #7A3B10; }
+.day-3 .day-badge { background: #C9E4F0; color: #1A4F6E; }
+.day-meta { flex: 1; min-width: 0; }
+.day-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.day-route { font-size: 0.8rem; color: var(--stone); font-weight: 500; margin-top: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.day-right { display: flex; align-items: center; gap: 0.65rem; flex-shrink: 0; }
+.day-miles-val { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--pine); display: block; line-height: 1; text-align: right; }
+.day-miles-lbl { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone); display: block; text-align: right; }
+.chevron { width: 22px; height: 22px; flex-shrink: 0; transition: transform 0.3s cubic-bezier(.4,0,.2,1); color: var(--stone); opacity: 0.7; }
+.day-card.open .chevron { transform: rotate(180deg); color: var(--pine); opacity: 1; }
+.day-body { display: none; border-top: 2px solid var(--border); }
+.day-card.open .day-body { display: block; }
+
+/* timing */
+.timing-row { display: flex; align-items: center; gap: 0.45rem; padding: 0.75rem 1.1rem; background: var(--mist); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.t-chip { display: inline-flex; align-items: center; gap: 0.3rem; background: var(--pine); color: var(--snow); border-radius: 5px; padding: 0.3rem 0.7rem; font-weight: 700; font-size: 0.78rem; white-space: nowrap; }
+.t-chip.arrive { background: var(--pine-lite); }
+.t-chip.memphis { background: var(--rust); }
+.t-arrow { color: var(--stone); font-size: 0.85rem; }
+
+/* progress */
+.day-progress { padding: 0.9rem 1.1rem 0.75rem; background: var(--snow); border-bottom: 1px solid var(--border); }
+.dp-labels { display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--stone); margin-bottom: 0.45rem; }
+.dp-pct { font-family: 'Playfair Display', serif; font-size: 0.9rem; font-weight: 700; color: var(--pine); }
+.dp-track { height: 10px; background: var(--mist-dark); border-radius: 5px; overflow: hidden; }
+.dp-fill { height: 100%; border-radius: 5px; width: 0; transition: width 0.85s cubic-bezier(.4,0,.2,1); }
+.day-1 .dp-fill { background: linear-gradient(90deg, var(--pine-mid), var(--pine-lite)); }
+.day-2 .dp-fill { background: linear-gradient(90deg, #C67C2A, var(--sandstone)); }
+.day-3 .dp-fill { background: linear-gradient(90deg, #1A7A96, #35B3CC); }
+
+/* banners */
+.info-banner { margin: 0.85rem 1.1rem; border-radius: var(--r-sm); padding: 0.9rem 1rem; display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; transition: filter 0.15s; -webkit-tap-highlight-color: transparent; }
+.info-banner:active { filter: brightness(0.91); }
+.info-banner.camp { background: var(--pine); color: var(--snow); }
+.info-banner.stop { background: linear-gradient(135deg, #8B3010, var(--rust)); color: var(--snow); }
+.banner-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
+.banner-body { flex: 1; min-width: 0; }
+.banner-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; }
+.banner-detail { font-size: 0.8rem; opacity: 0.82; margin-top: 0.2rem; line-height: 1.4; }
+.banner-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+.banner-tag { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.28); border-radius: 3px; padding: 0.15rem 0.5rem; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.banner-arrow { align-self: center; font-size: 1.2rem; opacity: 0.55; flex-shrink: 0; }
+
+/* segments */
+.seg-list { padding: 0 1.1rem 1rem; }
+.seg-list-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--stone); padding: 0.65rem 0 0.45rem; border-top: 1px solid var(--border); }
+.seg-row { display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem 0.5rem; border-bottom: 1px solid var(--mist-dark); cursor: pointer; border-radius: 8px; transition: background 0.12s; -webkit-tap-highlight-color: transparent; margin: 0 -0.5rem; }
+.seg-row:last-child { border-bottom: none; }
+.seg-row:hover, .seg-row:active { background: var(--mist); }
+.seg-num { width: 26px; height: 26px; border-radius: 50%; background: var(--pine); color: var(--snow); font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.seg-info { flex: 1; min-width: 0; }
+.seg-from { font-size: 0.78rem; font-weight: 500; color: var(--stone); }
+.seg-to { font-size: 0.9rem; font-weight: 700; color: var(--ink); }
+.seg-meta { display: flex; gap: 0.5rem; margin-top: 0.15rem; flex-wrap: wrap; }
+.seg-chip { font-size: 0.7rem; font-weight: 600; color: var(--stone); background: var(--mist-dark); border-radius: 3px; padding: 0.1rem 0.45rem; }
+.seg-pct-col { text-align: right; flex-shrink: 0; }
+.seg-pct-val { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--pine); display: block; line-height: 1; }
+.seg-pct-lbl { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--stone); }
+.seg-chev { color: var(--border); font-size: 0.9rem; flex-shrink: 0; }
+
+/* ── TABLE ── */
+.table-wrap { background: var(--snow); border: 2px solid var(--border); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 1rem; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.seg-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.seg-table th { background: var(--pine); color: rgba(255,255,255,0.82); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.62rem; padding: 0.6rem 0.7rem; text-align: left; white-space: nowrap; }
+.seg-table td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--mist-dark); vertical-align: middle; }
+.seg-table tr:last-child td { border-bottom: none; }
+.seg-table .day-row td { background: var(--mist); font-weight: 700; color: var(--pine); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.4rem 0.7rem; }
+.pct-col { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--pine); white-space: nowrap; }
+.cum-col { color: var(--stone); font-weight: 600; white-space: nowrap; }
+.table-note { padding: 0.55rem 0.9rem; font-size: 0.72rem; color: var(--stone); background: var(--mist); border-top: 1px solid var(--border); line-height: 1.5; }
+
+/* ── COSTS ── */
+.total-cost-card { background: var(--pine); border-radius: var(--r-lg); padding: 1.75rem 1.25rem; text-align: center; margin-bottom: 0.85rem; position: relative; overflow: hidden; box-shadow: var(--shadow-md); }
+.total-cost-card::before { content: '$'; position: absolute; right: -8px; top: -22px; font-family: 'Playfair Display', serif; font-size: 8rem; font-weight: 900; color: rgba(255,255,255,0.04); line-height: 1; }
+.tc-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 0.3rem; }
+.tc-value { font-family: 'Playfair Display', serif; font-size: 3.5rem; font-weight: 900; color: var(--sandstone); line-height: 1; }
+.tc-sub { font-size: 0.82rem; color: rgba(255,255,255,0.55); margin-top: 0.35rem; }
+.tc-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1.1rem; }
+.tc-pill { background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.22); border-radius: 99px; padding: 0.35rem 0.9rem; font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.85); }
+.tc-pill strong { color: var(--sandstone); }
+
+.cost-card { background: var(--snow); border: 2px solid var(--border); border-radius: var(--r-md); overflow: hidden; margin-bottom: 0.7rem; transition: border-color 0.2s; }
+.cost-card.open { border-color: var(--pine-mid); }
+.cost-hdr { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.1rem; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; transition: background 0.12s; }
+.cost-hdr:active { background: var(--mist); }
+.cost-hdr-l { display: flex; align-items: center; gap: 0.65rem; }
+.cost-icon { font-size: 1.25rem; }
+.cost-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--ink); }
+.cost-hdr-r { display: flex; align-items: center; gap: 0.5rem; }
+.cost-amt { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--pine); }
+.cost-chev { color: var(--stone); transition: transform 0.3s; font-size: 1rem; }
+.cost-card.open .cost-chev { transform: rotate(180deg); color: var(--pine); }
+.cost-body { display: none; border-top: 2px solid var(--border); }
+.cost-card.open .cost-body { display: block; }
+.cost-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 1.1rem; border-bottom: 1px solid var(--mist-dark); font-size: 0.85rem; gap: 0.5rem; }
+.cost-row:last-child { border-bottom: none; }
+.cr-label { color: var(--stone); font-weight: 500; flex: 1; }
+.cr-val { font-weight: 700; color: var(--ink); white-space: nowrap; }
+.cost-row.total-row { background: var(--mist); border-top: 2px solid var(--border); }
+.cost-row.total-row .cr-label { color: var(--pine); font-weight: 700; }
+.cost-row.total-row .cr-val { color: var(--pine); font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+.gas-bars { padding: 0.25rem 1.1rem 0.9rem; }
+.gas-hdr { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stone); margin-bottom: 0.55rem; }
+.gas-row { display: flex; align-items: center; gap: 0.65rem; padding: 0.3rem 0; }
+.gs-state { font-size: 0.8rem; font-weight: 700; width: 82px; flex-shrink: 0; color: var(--ink); }
+.gs-bar-wrap { flex: 1; height: 7px; background: var(--mist-dark); border-radius: 4px; overflow: hidden; }
+.gs-bar { height: 100%; border-radius: 4px; background: var(--pine-mid); }
+.gs-price { font-size: 0.75rem; font-weight: 700; color: var(--pine); width: 38px; text-align: right; flex-shrink: 0; }
+.gs-cost { font-size: 0.75rem; font-weight: 500; color: var(--stone); width: 32px; text-align: right; flex-shrink: 0; }
+.cost-note { padding: 0.55rem 1.1rem 0.8rem; font-size: 0.75rem; color: var(--stone); background: var(--mist); border-top: 1px solid var(--border); line-height: 1.55; }
+
+/* ── TIPS ── */
+.tips-grid { display: grid; gap: 0.6rem; }
+.tip-card { background: var(--snow); border: 2px solid var(--border); border-radius: var(--r-md); padding: 0.9rem 1rem; display: flex; gap: 0.75rem; align-items: flex-start; }
+.tip-icon { font-size: 1.3rem; flex-shrink: 0; line-height: 1; margin-top: 0.1rem; }
+.tip-text { font-size: 0.86rem; line-height: 1.55; color: var(--ink); }
+.tip-text strong { color: var(--pine); }
+
+/* ── MODAL BOTTOM SHEET ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.52); z-index: 300; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal-sheet { background: var(--snow); border-radius: 22px 22px 0 0; width: 100%; max-width: 680px; max-height: 88vh; overflow-y: auto; overscroll-behavior: contain; animation: sheetUp 0.32s cubic-bezier(.2,.8,.4,1); -webkit-overflow-scrolling: touch; }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@media (min-width: 640px) { .modal-overlay { align-items: center; padding: 1rem; } .modal-sheet { border-radius: 22px; max-height: 82vh; } }
+.sheet-handle { width: 40px; height: 5px; background: var(--border); border-radius: 3px; margin: 0.8rem auto 0; }
+.sheet-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; padding: 0.8rem 1.25rem 1rem; border-bottom: 2px solid var(--border); }
+.sheet-title { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; color: var(--ink); }
+.sheet-close { width: 34px; height: 34px; border-radius: 50%; background: var(--mist); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; color: var(--stone); flex-shrink: 0; transition: background 0.15s; }
+.sheet-close:hover { background: var(--border); }
+.sheet-body { padding: 1.1rem 1.25rem 2rem; }
+.sheet-stat { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--mist-dark); font-size: 0.88rem; gap: 0.5rem; }
+.sheet-stat:last-of-type { border-bottom: none; }
+.ss-label { color: var(--stone); font-weight: 500; }
+.ss-val { font-weight: 700; color: var(--ink); text-align: right; }
+.sheet-note { background: var(--mist); border-left: 3px solid var(--pine); border-radius: 0 8px 8px 0; padding: 0.75rem 1rem; margin-top: 1.1rem; font-size: 0.83rem; line-height: 1.55; color: var(--stone); }
+
+/* ── FOOTER ── */
+.footer { background: var(--pine); color: rgba(255,255,255,0.55); text-align: center; padding: 1.75rem 1.25rem; font-size: 0.78rem; line-height: 1.7; }
+.footer strong { color: var(--sandstone); }
+
+#section-overview,#section-days,#section-segments,#section-costs,#section-tips { scroll-margin-top: 90px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">🏔 Road Trip · Fri–Sun</div>
+  <h1>Denver<br>to Greenville</h1>
+  <div class="hero-sub">3 days · 2 state park camps · 1 BBQ stop on Beale</div>
+  <div class="hero-info">
+    <div class="hero-info-row"><span class="hi-label">📅 Dates</span><span class="hi-value">Friday – Sunday</span></div>
+    <div class="hero-info-row"><span class="hi-label">🛣 Route</span><span class="hi-value">I-70 → I-55 → I-40 → I-85</span></div>
+    <div class="hero-info-row"><span class="hi-label">📍 Total</span><span class="hi-value">1,470 mi · No tolls</span></div>
+  </div>
+</div>
+
+<div class="nav-wrap">
+  <nav class="nav-pills">
+    <a class="pill active" href="#section-overview">Overview</a>
+    <a class="pill" href="#section-days">Days</a>
+    <a class="pill" href="#section-segments">Segments</a>
+    <a class="pill" href="#section-costs">Costs</a>
+    <a class="pill" href="#section-tips">Tips</a>
+  </nav>
+  <div class="trip-ticker">
+    <span class="ticker-label">SCROLL PROGRESS</span>
+    <div class="ticker-track"><div class="ticker-fill" id="tickerFill"></div></div>
+    <span class="ticker-pct" id="tickerPct">0%</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <section id="section-overview">
+    <div class="section-header"><div class="section-icon">🗺</div><h2 class="section-title">Trip at a Glance</h2></div>
+    <div class="stats-grid">
+      <div class="stat-card hero-stat"><div class="stat-value">1,470</div><div class="stat-label">Total Miles</div></div>
+      <div class="stat-card"><div class="stat-value">3</div><div class="stat-label">Days</div></div>
+      <div class="stat-card"><div class="stat-value">2</div><div class="stat-label">Camp Nights</div></div>
+      <div class="stat-card"><div class="stat-value">9</div><div class="stat-label">Segments</div></div>
+      <div class="stat-card"><div class="stat-value">$0</div><div class="stat-label">Tolls</div></div>
+      <div class="stat-card"><div class="stat-value">~$456</div><div class="stat-label">Total Cost</div></div>
+    </div>
+    <div class="route-timeline">
+      <div class="rt-title">Route at a Glance</div>
+      <div class="rt-row"><div class="rt-spine"><div class="rt-dot filled"></div><div class="rt-line"></div></div><div class="rt-content"><div class="rt-city">Denver, CO</div><div class="rt-detail">I-70 East · 6:30am Friday</div></div></div>
+      <div class="rt-row"><div class="rt-spine"><div class="rt-dot"></div><div class="rt-line"></div></div><div class="rt-content"><div class="rt-city">Kansas</div><div class="rt-detail">555 mi of fast highway · fill up in Salina</div></div></div>
+      <div class="rt-row"><div class="rt-spine"><div class="rt-dot camp"></div><div class="rt-line"></div></div><div class="rt-content"><div class="rt-city">Knob Noster State Park, MO</div><div class="rt-detail">~3:30pm Friday · Buteo Lake trails</div><span class="rt-tag camp">🏕 Night 1</span></div></div>
+      <div class="rt-row"><div class="rt-spine"><div class="rt-dot"></div><div class="rt-line"></div></div><div class="rt-content"><div class="rt-city">St. Louis, MO</div><div class="rt-detail">I-70 east · Gateway Arch visible from bridge</div></div></div>
+      <div class="rt-row"><div class="rt-spine"><div class="rt-dot special"></div><div class="rt-line"></div></div><div class="rt-content"><div class="rt-city">Memphis, TN 🎸</div><div class="rt-detail">~12:30pm Saturday · Beale St · BBQ lunch</div><span class="rt-tag music">Special Stop</span></div></div>
+      <div class="rt-row"><div class="rt-spine"><div class="rt-dot camp"></div><div class="rt-line"></div></div><div class="rt-content"><div class="rt-city">Meeman-Shelby Forest SP, TN</div><div class="rt-detail">13 mi north of Memphis · Mississippi River bluffs</div><span class="rt-tag camp">🏕 Night 2</span></div></div>
+      <div class="rt-row"><div class="rt-spine"><div class="rt-dot"></div><div class="rt-line"></div></div><div class="rt-content"><div class="rt-city">Nashville → Chattanooga</div><div class="rt-detail">I-40 east then I-24 through Cumberland Plateau</div></div></div>
+      <div class="rt-row"><div class="rt-spine"><div class="rt-dot home"></div></div><div class="rt-content"><div class="rt-city">Greenville, SC 🏠</div><div class="rt-detail">~1:30pm Sunday · I-85 into the SC foothills</div><span class="rt-tag home-tag">Home</span></div></div>
+    </div>
+  </section>
+
+  <section id="section-days">
+    <div class="section-header"><div class="section-icon">📅</div><h2 class="section-title">Day by Day</h2></div>
+
+    <!-- DAY 1 -->
+    <div class="day-card day-1" id="day1">
+      <div class="day-header" onclick="toggleDay('day1')">
+        <div class="day-badge"><span class="day-word">Fri</span><span class="day-num">1</span></div>
+        <div class="day-meta"><div class="day-name">Denver → Missouri</div><div class="day-route">I-70 East · Kansas all day</div></div>
+        <div class="day-right">
+          <div><span class="day-miles-val">555</span><span class="day-miles-lbl">miles</span></div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="day-body">
+        <div class="timing-row"><span class="t-chip">🌅 6:30am Depart</span><span class="t-arrow">→</span><span class="t-chip arrive">🏕 ~3:30pm Camp</span></div>
+        <div class="day-progress">
+          <div class="dp-labels"><span>Trip Progress after Day 1</span><span class="dp-pct">38.9%</span></div>
+          <div class="dp-track"><div class="dp-fill" data-width="38.9"></div></div>
+        </div>
+        <div class="info-banner camp" onclick="openModal('campModal1')">
+          <span class="banner-icon">🏕</span>
+          <div class="banner-body"><div class="banner-name">Knob Noster State Park</div><div class="banner-detail">Warrensburg, MO · 65 mi east of Kansas City · Buteo Lake trails</div><div class="banner-tags"><span class="banner-tag">Tent Sites</span><span class="banner-tag">Bathhouses</span><span class="banner-tag">~$14–18/night</span></div></div>
+          <span class="banner-arrow">›</span>
+        </div>
+        <div class="seg-list">
+          <div class="seg-list-title">Segments — tap for details</div>
+          <div class="seg-row" onclick="openModal('seg1')"><div class="seg-num">1</div><div class="seg-info"><div class="seg-from">From Denver, CO</div><div class="seg-to">→ Oakley, KS</div><div class="seg-meta"><span class="seg-chip">⏱ 3h 10m*</span><span class="seg-chip">193 mi</span><span class="seg-chip">I-70 E</span></div></div><div class="seg-pct-col"><span class="seg-pct-val">13.8%</span><span class="seg-pct-lbl">of trip</span></div><span class="seg-chev">›</span></div>
+          <div class="seg-row" onclick="openModal('seg2')"><div class="seg-num">2</div><div class="seg-info"><div class="seg-from">From Oakley, KS</div><div class="seg-to">→ Salina, KS ⛽</div><div class="seg-meta"><span class="seg-chip">⏱ 1h 45m</span><span class="seg-chip">120 mi</span><span class="seg-chip">I-70 E</span></div></div><div class="seg-pct-col"><span class="seg-pct-val">8.6%</span><span class="seg-pct-lbl">of trip</span></div><span class="seg-chev">›</span></div>
+          <div class="seg-row" onclick="openModal('seg3')"><div class="seg-num">3</div><div class="seg-info"><div class="seg-from">From Salina, KS</div><div class="seg-to">→ Knob Noster SP, MO 🏕</div><div class="seg-meta"><span class="seg-chip">⏱ 2h 45m</span><span class="seg-chip">242 mi</span><span class="seg-chip">I-70 E</span></div></div><div class="seg-pct-col"><span class="seg-pct-val">16.5%</span><span class="seg-pct-lbl">of trip</span></div><span class="seg-chev">›</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 2 -->
+    <div class="day-card day-2" id="day2">
+      <div class="day-header" onclick="toggleDay('day2')">
+        <div class="day-badge"><span class="day-word">Sat</span><span class="day-num">2</span></div>
+        <div class="day-meta"><div class="day-name">Missouri → Memphis area</div><div class="day-route">St. Louis · I-55 South · Beale St 🎸</div></div>
+        <div class="day-right">
+          <div><span class="day-miles-val">470</span><span class="day-miles-lbl">miles</span></div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="day-body">
+        <div class="timing-row"><span class="t-chip">🌅 6:30am Depart</span><span class="t-arrow">→</span><span class="t-chip memphis">🎸 ~12:30pm Memphis</span><span class="t-arrow">→</span><span class="t-chip arrive">🏕 ~3:30pm Camp</span></div>
+        <div class="day-progress">
+          <div class="dp-labels"><span>Trip Progress after Day 2</span><span class="dp-pct">71.8%</span></div>
+          <div class="dp-track"><div class="dp-fill" data-width="71.8"></div></div>
+        </div>
+        <div class="info-banner stop" onclick="openModal('memphis')">
+          <span class="banner-icon">🎸</span>
+          <div class="banner-body"><div class="banner-name">Memphis Stop — Beale St & BBQ</div><div class="banner-detail">Arrive ~12:30pm Sat. Central BBQ · Rendezvous Ribs · Live music all afternoon.</div><div class="banner-tags"><span class="banner-tag">~90 min</span><span class="banner-tag">Lunch + Walk</span></div></div>
+          <span class="banner-arrow">›</span>
+        </div>
+        <div class="info-banner camp" onclick="openModal('campModal2')">
+          <span class="banner-icon">🏕</span>
+          <div class="banner-body"><div class="banner-name">Meeman-Shelby Forest State Park</div><div class="banner-detail">Millington, TN · 13 mi north of Memphis · Mississippi River bluffs</div><div class="banner-tags"><span class="banner-tag">Tent Sites</span><span class="banner-tag">Bathhouses</span><span class="banner-tag">~$20–25/night</span></div></div>
+          <span class="banner-arrow">›</span>
+        </div>
+        <div class="seg-list">
+          <div class="seg-list-title">Segments — tap for details</div>
+          <div class="seg-row" onclick="openModal('seg4')"><div class="seg-num">4</div><div class="seg-info"><div class="seg-from">From Knob Noster, MO</div><div class="seg-to">→ St. Louis, MO</div><div class="seg-meta"><span class="seg-chip">⏱ 2h 45m</span><span class="seg-chip">185 mi</span><span class="seg-chip">I-70 E</span></div></div><div class="seg-pct-col"><span class="seg-pct-val">12.6%</span><span class="seg-pct-lbl">of trip</span></div><span class="seg-chev">›</span></div>
+          <div class="seg-row" onclick="openModal('seg5')"><div class="seg-num">5</div><div class="seg-info"><div class="seg-from">From St. Louis, MO</div><div class="seg-to">→ Memphis, TN 🎸</div><div class="seg-meta"><span class="seg-chip">⏱ 4h 20m†</span><span class="seg-chip">285 mi</span><span class="seg-chip">I-55 S</span></div></div><div class="seg-pct-col"><span class="seg-pct-val">19.4%</span><span class="seg-pct-lbl">of trip</span></div><span class="seg-chev">›</span></div>
+          <div class="seg-row" onclick="openModal('seg6')"><div class="seg-num">6</div><div class="seg-info"><div class="seg-from">From Memphis, TN</div><div class="seg-to">→ Meeman-Shelby SP 🏕</div><div class="seg-meta"><span class="seg-chip">⏱ 20 min</span><span class="seg-chip">13 mi</span><span class="seg-chip">US-51 N</span></div></div><div class="seg-pct-col"><span class="seg-pct-val">0.9%</span><span class="seg-pct-lbl">of trip</span></div><span class="seg-chev">›</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 3 -->
+    <div class="day-card day-3" id="day3">
+      <div class="day-header" onclick="toggleDay('day3')">
+        <div class="day-badge"><span class="day-word">Sun</span><span class="day-num">3</span></div>
+        <div class="day-meta"><div class="day-name">Memphis → Home</div><div class="day-route">Nashville · Chattanooga · SC foothills</div></div>
+        <div class="day-right">
+          <div><span class="day-miles-val">445</span><span class="day-miles-lbl">miles</span></div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="day-body">
+        <div class="timing-row"><span class="t-chip">🌅 6:30am Depart</span><span class="t-arrow">→</span><span class="t-chip arrive">🏠 ~1:30pm Home</span></div>
+        <div class="day-progress">
+          <div class="dp-labels"><span>Trip Progress after Day 3</span><span class="dp-pct">100% ✓</span></div>
+          <div class="dp-track"><div class="dp-fill" data-width="100"></div></div>
+        </div>
+        <div class="seg-list">
+          <div class="seg-list-title">Segments — tap for details</div>
+          <div class="seg-row" onclick="openModal('seg7')"><div class="seg-num">7</div><div class="seg-info"><div class="seg-from">From Meeman-Shelby SP</div><div class="seg-to">→ Nashville, TN</div><div class="seg-meta"><span class="seg-chip">⏱ 3h 15m</span><span class="seg-chip">210 mi</span><span class="seg-chip">I-40 E</span></div></div><div class="seg-pct-col"><span class="seg-pct-val">14.3%</span><span class="seg-pct-lbl">of trip</span></div><span class="seg-chev">›</span></div>
+          <div class="seg-row" onclick="openModal('seg8')"><div class="seg-num">8</div><div class="seg-info"><div class="seg-from">From Nashville, TN</div><div class="seg-to">→ Chattanooga, TN</div><div class="seg-meta"><span class="seg-chip">⏱ 2h 10m</span><span class="seg-chip">135 mi</span><span class="seg-chip">I-24 E</span></div></div><div class="seg-pct-col"><span class="seg-pct-val">9.2%</span><span class="seg-pct-lbl">of trip</span></div><span class="seg-chev">›</span></div>
+          <div class="seg-row" onclick="openModal('seg9')"><div class="seg-num">9</div><div class="seg-info"><div class="seg-from">From Chattanooga, TN</div><div class="seg-to">→ Greenville, SC 🏠</div><div class="seg-meta"><span class="seg-chip">⏱ 2h 00m</span><span class="seg-chip">130 mi</span><span class="seg-chip">I-75/I-85</span></div></div><div class="seg-pct-col"><span class="seg-pct-val">8.8%</span><span class="seg-pct-lbl">of trip</span></div><span class="seg-chev">›</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="section-segments">
+    <div class="section-header"><div class="section-icon">📊</div><h2 class="section-title">All Segments</h2></div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table class="seg-table">
+          <thead><tr><th>#</th><th>From</th><th>To</th><th>Mi</th><th>Time</th><th>Seg%</th><th>Total%</th></tr></thead>
+          <tbody>
+            <tr class="day-row"><td colspan="7">FRIDAY — Day 1</td></tr>
+            <tr><td>1</td><td>Denver, CO</td><td>Oakley, KS</td><td>193</td><td>3h 10m</td><td class="pct-col">13.8%</td><td class="cum-col">13.8%</td></tr>
+            <tr><td>2</td><td>Oakley, KS</td><td>Salina, KS ⛽</td><td>120</td><td>1h 45m</td><td class="pct-col">8.6%</td><td class="cum-col">22.4%</td></tr>
+            <tr><td>3</td><td>Salina, KS</td><td>Knob Noster SP 🏕</td><td>242</td><td>2h 45m</td><td class="pct-col">16.5%</td><td class="cum-col">38.9%</td></tr>
+            <tr class="day-row"><td colspan="7">SATURDAY — Day 2</td></tr>
+            <tr><td>4</td><td>Knob Noster, MO</td><td>St. Louis, MO</td><td>185</td><td>2h 45m</td><td class="pct-col">12.6%</td><td class="cum-col">51.5%</td></tr>
+            <tr><td>5</td><td>St. Louis, MO</td><td>Memphis, TN 🎸</td><td>285</td><td>4h 20m</td><td class="pct-col">19.4%</td><td class="cum-col">70.9%</td></tr>
+            <tr><td>6</td><td>Memphis, TN</td><td>Meeman-Shelby 🏕</td><td>13</td><td>20m</td><td class="pct-col">0.9%</td><td class="cum-col">71.8%</td></tr>
+            <tr class="day-row"><td colspan="7">SUNDAY — Day 3</td></tr>
+            <tr><td>7</td><td>Meeman-Shelby</td><td>Nashville, TN</td><td>210</td><td>3h 15m</td><td class="pct-col">14.3%</td><td class="cum-col">86.1%</td></tr>
+            <tr><td>8</td><td>Nashville, TN</td><td>Chattanooga, TN</td><td>135</td><td>2h 10m</td><td class="pct-col">9.2%</td><td class="cum-col">95.3%</td></tr>
+            <tr><td>9</td><td>Chattanooga, TN</td><td>Greenville, SC 🏠</td><td>130</td><td>2h 00m</td><td class="pct-col">8.8%</td><td class="cum-col">100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-note">* Seg 1: ~25 min Denver metro buffer · † Seg 5: 15 min St. Louis weekend construction buffer</div>
+    </div>
+  </section>
+
+  <section id="section-costs">
+    <div class="section-header"><div class="section-icon">💵</div><h2 class="section-title">Trip Costs</h2></div>
+    <div class="total-cost-card">
+      <div class="tc-label">Estimated Total · 1 Person</div>
+      <div class="tc-value">$456</div>
+      <div class="tc-sub">2015 Toyota Highlander · 1,470 miles · No tolls</div>
+      <div class="tc-pills">
+        <div class="tc-pill">⛽ Gas <strong>$280</strong></div>
+        <div class="tc-pill">🏕 Camp <strong>$58</strong></div>
+        <div class="tc-pill">🍖 Food <strong>$118</strong></div>
+        <div class="tc-pill">🛣 Tolls <strong>$0</strong></div>
+      </div>
+    </div>
+    <div class="cost-card" id="cGas">
+      <div class="cost-hdr" onclick="toggleCost('cGas')"><div class="cost-hdr-l"><span class="cost-icon">⛽</span><span class="cost-title">Gas</span></div><div class="cost-hdr-r"><span class="cost-amt">~$280</span><span class="cost-chev">▾</span></div></div>
+      <div class="cost-body">
+        <div class="cost-row"><span class="cr-label">Vehicle highway MPG (est.)</span><span class="cr-val">~22 mpg</span></div>
+        <div class="cost-row"><span class="cr-label">Total gallons needed</span><span class="cr-val">~66.8 gal</span></div>
+        <div class="cost-row"><span class="cr-label">Avg price/gal across route</span><span class="cr-val">~$4.19</span></div>
+        <div class="gas-bars">
+          <div class="gas-hdr">Cost by state</div>
+          <div class="gas-row"><span class="gs-state">Colorado</span><div class="gs-bar-wrap"><div class="gs-bar" style="width:28%;background:#B5451B;"></div></div><span class="gs-price">$4.40</span><span class="gs-cost">$33</span></div>
+          <div class="gas-row"><span class="gs-state">Kansas</span><div class="gs-bar-wrap"><div class="gs-bar" style="width:92%;"></div></div><span class="gs-price">$3.90</span><span class="gs-cost">$72</span></div>
+          <div class="gas-row"><span class="gs-state">Missouri</span><div class="gs-bar-wrap"><div class="gs-bar" style="width:58%;"></div></div><span class="gs-price">$4.10</span><span class="gs-cost">$52</span></div>
+          <div class="gas-row"><span class="gs-state">Illinois</span><div class="gs-bar-wrap"><div class="gs-bar" style="width:16%;"></div></div><span class="gs-price">$4.30</span><span class="gs-cost">$15</span></div>
+          <div class="gas-row"><span class="gs-state">Tennessee</span><div class="gs-bar-wrap"><div class="gs-bar" style="width:78%;"></div></div><span class="gs-price">$4.00</span><span class="gs-cost">$63</span></div>
+          <div class="gas-row"><span class="gs-state">NC / SC</span><div class="gs-bar-wrap"><div class="gs-bar" style="width:20%;"></div></div><span class="gs-price">$4.05</span><span class="gs-cost">$17</span></div>
+        </div>
+        <div class="cost-note">Kansas is consistently among the cheapest states for gas. Fill up in Salina (Seg 2) before Missouri prices start.</div>
+      </div>
+    </div>
+    <div class="cost-card" id="cCamp">
+      <div class="cost-hdr" onclick="toggleCost('cCamp')"><div class="cost-hdr-l"><span class="cost-icon">🏕</span><span class="cost-title">Camping (2 nights)</span></div><div class="cost-hdr-r"><span class="cost-amt">~$58</span><span class="cost-chev">▾</span></div></div>
+      <div class="cost-body">
+        <div class="cost-row"><span class="cr-label">Night 1 — Knob Noster SP, MO</span><span class="cr-val">~$18</span></div>
+        <div class="cost-row"><span class="cr-label">MO reservation fee</span><span class="cr-val">~$4</span></div>
+        <div class="cost-row"><span class="cr-label">Night 2 — Meeman-Shelby SP, TN</span><span class="cr-val">~$25</span></div>
+        <div class="cost-row"><span class="cr-label">TN reservation fee</span><span class="cr-val">~$5</span></div>
+        <div class="cost-row total-row"><span class="cr-label">Total</span><span class="cr-val">~$52–65</span></div>
+        <div class="cost-note">Book via mostateparks.com and tnstateparks.com. ⚠️ Call Meeman-Shelby at (888) 867-2757 to confirm bathhouse status before booking.</div>
+      </div>
+    </div>
+    <div class="cost-card" id="cFood">
+      <div class="cost-hdr" onclick="toggleCost('cFood')"><div class="cost-hdr-l"><span class="cost-icon">🍖</span><span class="cost-title">Food & Drinks</span></div><div class="cost-hdr-r"><span class="cost-amt">~$118</span><span class="cost-chev">▾</span></div></div>
+      <div class="cost-body">
+        <div class="cost-row"><span class="cr-label">Snacks & coffee (3 days)</span><span class="cr-val">~$28</span></div>
+        <div class="cost-row"><span class="cr-label">Memphis lunch (Beale St / BBQ)</span><span class="cr-val">~$22</span></div>
+        <div class="cost-row"><span class="cr-label">Camp dinners (2 nights)</span><span class="cr-val">~$30</span></div>
+        <div class="cost-row"><span class="cr-label">Camp breakfasts (2 mornings)</span><span class="cr-val">~$14</span></div>
+        <div class="cost-row"><span class="cr-label">Other meals (play by ear)</span><span class="cr-val">~$24</span></div>
+        <div class="cost-row total-row"><span class="cr-label">Total</span><span class="cr-val">~$118</span></div>
+      </div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-hdr" style="cursor:default;"><div class="cost-hdr-l"><span class="cost-icon">🛣</span><span class="cost-title">Tolls</span></div><span class="cost-amt" style="color:var(--pine-lite);">$0</span></div>
+      <div style="padding:0.65rem 1.1rem 0.8rem;font-size:0.82rem;color:var(--stone);background:var(--mist);border-top:1px solid var(--border);line-height:1.5;">Route avoids all toll roads. I-70, I-55, I-40, I-24, I-75, and I-85 are toll-free on this entire corridor.</div>
+    </div>
+  </section>
+
+  <section id="section-tips">
+    <div class="section-header"><div class="section-icon">💡</div><h2 class="section-title">Good to Know</h2></div>
+    <div class="tips-grid">
+      <div class="tip-card"><span class="tip-icon">⛽</span><div class="tip-text"><strong>Fill up in Salina, KS.</strong> Kansas gas is ~$3.90/gal. Salina is the natural mid-state stop — top off before Missouri prices kick in.</div></div>
+      <div class="tip-card"><span class="tip-icon">⏰</span><div class="tip-text"><strong>6:30am Friday departure is key.</strong> Denver rush hour runs 7–9am. Leaving at 6:30 clears the metro before traffic builds.</div></div>
+      <div class="tip-card"><span class="tip-icon">🏕</span><div class="tip-text"><strong>Book both campsites ASAP.</strong> mostateparks.com for Knob Noster · tnstateparks.com for Meeman-Shelby. Weekend tent sites fill fast.</div></div>
+      <div class="tip-card"><span class="tip-icon">🚿</span><div class="tip-text"><strong>Meeman-Shelby heads-up.</strong> A recent review flagged an active bathhouse renovation. Call (888) 867-2757 to verify before booking.</div></div>
+      <div class="tip-card"><span class="tip-icon">🎸</span><div class="tip-text"><strong>Memphis timing is ideal.</strong> Arriving early afternoon Saturday means Beale Street is lively but not yet packed. Central BBQ opens at 11am.</div></div>
+      <div class="tip-card"><span class="tip-icon">🏠</span><div class="tip-text"><strong>Day 3 arrives early (~1:30pm).</strong> Chattanooga route saves 35+ miles vs. Asheville. Home Sunday afternoon with the evening free.</div></div>
+      <div class="tip-card"><span class="tip-icon">📱</span><div class="tip-text"><strong>Download offline maps for Kansas.</strong> Cell coverage gets spotty in western KS. Download the I-70 corridor in Google Maps before leaving Denver.</div></div>
+      <div class="tip-card"><span class="tip-icon">🌤</span><div class="tip-text"><strong>I-24 through Tennessee is the payoff.</strong> The Highland Rim between Nashville and Chattanooga has rolling plateau views — a great final stretch home.</div></div>
+    </div>
+  </section>
+</div>
+
+<div class="footer"><strong>Denver → Greenville · 3-Day Return</strong><br>1,470 miles · No tolls · 2 state park camps · 1 BBQ stop<br>Gas prices as of May 2026. Costs are estimates — verify fees when booking.</div>
+
+<!-- MODAL BOTTOM SHEET -->
+<div class="modal-overlay" id="modalOverlay" onclick="overlayTap(event)">
+  <div class="modal-sheet" id="modalSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-title" id="sheetTitle"></div>
+      <button class="sheet-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<script>
+// Accordion — one day open at a time
+function toggleDay(id) {
+  const card = document.getElementById(id);
+  const wasOpen = card.classList.contains('open');
+  ['day1','day2','day3'].forEach(d => document.getElementById(d).classList.remove('open'));
+  if (!wasOpen) {
+    card.classList.add('open');
+    // Trigger progress bar animation on open
+    setTimeout(() => {
+      card.querySelectorAll('.dp-fill').forEach(el => { el.style.width = el.dataset.width + '%'; });
+    }, 30);
+  }
+}
+
+// Cost accordion
+function toggleCost(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// Scroll ticker
+function updateTicker() {
+  const total = document.body.scrollHeight - window.innerHeight;
+  const pct = total > 0 ? Math.round((window.scrollY / total) * 100) : 0;
+  document.getElementById('tickerFill').style.width = Math.min(pct, 100) + '%';
+  document.getElementById('tickerPct').textContent = Math.min(pct, 100) + '%';
+  // Nav active state
+  const secs = ['section-overview','section-days','section-segments','section-costs','section-tips'];
+  let cur = secs[0];
+  secs.forEach(id => { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top < 110) cur = id; });
+  document.querySelectorAll('.pill').forEach(p => { p.classList.toggle('active', p.getAttribute('href') === '#' + cur); });
+}
+window.addEventListener('scroll', updateTicker, { passive: true });
+
+// Modal data
+const M = {
+  campModal1: { title: '🏕 Knob Noster State Park', stats: [['Location','Warrensburg, MO'],['From Denver','555 miles'],['From Kansas City','65 mi east'],['Site type','Developed tent sites'],['Bathhouses','Yes (walk from tent area)'],['Hookups','None needed'],['Cost','~$14–18/night + $4 reservation'],['Book via','mostateparks.com']], note: 'Trails loop Buteo Lake. Park is quiet on weekdays, busier summer weekends. Bring a headlamp — bathrooms require a short walk from tent area.' },
+  campModal2: { title: '🏕 Meeman-Shelby Forest SP', stats: [['Location','Millington, TN'],['From Memphis','13 miles north'],['Setting','Mississippi River bluffs'],['Site type','Developed tent sites'],['Bathhouses','Yes (⚠️ renovation in progress)'],['Cost','~$20–25/night + $5 reservation'],['Book via','tnstateparks.com'],['Phone','(888) 867-2757']], note: '⚠️ A recent visitor flagged an active bathhouse renovation. Call ahead to confirm shower availability before booking your site.' },
+  memphis: { title: '🎸 Memphis — Beale St & BBQ', stats: [['Arrive (est.)','~12:30pm Saturday'],['Suggested stop','~90 minutes'],['Top BBQ','Central BBQ · Charlie Vergos Rendezvous · Paynes Bar-B-Q'],['Beale Street','Live music all afternoon on Saturdays'],['After stop','13 min drive north to camp']], note: "Central BBQ on Central Ave opens at 11am. Beale Street is a 5-min walk. Don't sit down at a bar or you won't leave." },
+  seg1: { title: 'Segment 1 · Denver → Oakley, KS', stats: [['Miles','193'],['Drive time','~3h 10m (metro buffer)'],['Highway','I-70 East'],['This segment','13.8% of trip'],['Cumulative','13.8%']], note: 'Depart 6:30am to beat Denver rush hour (7–9am). I-70 clears quickly east of Aurora. Oakley has the Fick Fossil Museum — Kansas was an inland sea 80M years ago.' },
+  seg2: { title: 'Segment 2 · Oakley → Salina, KS ⛽', stats: [['Miles','120'],['Drive time','~1h 45m'],['Highway','I-70 East'],['This segment','8.6% of trip'],['Cumulative','22.4%']], note: '⛽ FILL UP IN SALINA. Gas is ~$3.90/gal here, among the cheapest on the route. Top off the tank before heading east.' },
+  seg3: { title: 'Segment 3 · Salina → Knob Noster SP 🏕', stats: [['Miles','242'],['Drive time','~2h 45m'],['Highway','I-70 E → Warrensburg exit'],['This segment','16.5% of trip'],['Cumulative','38.9%']], note: 'Passes Topeka and KC metro. KC Friday traffic can slow — stay on I-70, skip I-435. Exit Warrensburg, follow signs to Knob Noster SP. Arrive ~3:30pm.' },
+  seg4: { title: 'Segment 4 · Knob Noster → St. Louis', stats: [['Miles','185'],['Drive time','~2h 45m'],['Highway','I-70 East'],['This segment','12.6% of trip'],['Cumulative','51.5%']], note: 'Saturday morning, light traffic. Gateway Arch is visible from the I-70 bridge as you cross the Mississippi into Missouri.' },
+  seg5: { title: 'Segment 5 · St. Louis → Memphis 🎸', stats: [['Miles','285'],['Drive time','~4h 20m (with buffer)'],['Highway','I-55 South'],['This segment','19.4% of trip'],['Cumulative','70.9%']], note: 'Longest segment of the trip. I-55 south through MO farmland then Arkansas delta into Memphis. Flat, fast, easy. Arrive ~12:30pm.' },
+  seg6: { title: 'Segment 6 · Memphis → Meeman-Shelby 🏕', stats: [['Miles','13'],['Drive time','~20 min'],['Route','US-51 North toward Millington'],['This segment','0.9% of trip'],['Cumulative','71.8%']], note: 'Quick hop north from downtown. Park entrance on Riddick Rd in Millington. Arrive ~3:30pm with daylight to set up camp.' },
+  seg7: { title: 'Segment 7 · Meeman-Shelby → Nashville', stats: [['Miles','210'],['Drive time','~3h 15m'],['Highway','I-40 East'],['This segment','14.3% of trip'],['Cumulative','86.1%']], note: 'Sunday morning on I-40 is easy. Jackson TN is a natural rest midpoint. Nashville skyline from I-40 west is a great shot.' },
+  seg8: { title: 'Segment 8 · Nashville → Chattanooga', stats: [['Miles','135'],['Drive time','~2h 10m'],['Highway','I-24 East'],['This segment','9.2% of trip'],['Cumulative','95.3%']], note: 'I-24 east of Nashville rises onto the Cumberland Plateau — genuine ridge and valley views. Lookout Mountain visible entering Chattanooga.' },
+  seg9: { title: 'Segment 9 · Chattanooga → Greenville 🏠', stats: [['Miles','130'],['Drive time','~2h 00m'],['Highway','I-75 N → I-85 N into SC'],['This segment','8.8% of trip'],['Cumulative','100% ✓']], note: 'Final stretch. Blue Ridge visible to the northwest on I-85 — a fitting end. Arrive Greenville ~1:30pm, well before the 5pm Sunday deadline.' },
+};
+
+function openModal(id) {
+  const d = M[id]; if (!d) return;
+  document.getElementById('sheetTitle').textContent = d.title;
+  let html = d.stats.map(([l,v]) => `<div class="sheet-stat"><span class="ss-label">${l}</span><span class="ss-val">${v}</span></div>`).join('');
+  if (d.note) html += `<div class="sheet-note">${d.note}</div>`;
+  document.getElementById('sheetBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function overlayTap(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+// Swipe down to close
+let ty = 0;
+document.getElementById('modalSheet').addEventListener('touchstart', e => { ty = e.touches[0].clientY; }, { passive: true });
+document.getElementById('modalSheet').addEventListener('touchend', e => { if (e.changedTouches[0].clientY - ty > 72) closeModal(); }, { passive: true });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
